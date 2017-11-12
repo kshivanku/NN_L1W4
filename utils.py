@@ -2,32 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 
-def sigmoid(Z):
-    A = 1/(1+np.exp(-Z))
-    cache = Z
-    return A, cache
-
-def relu(Z):
-    A = np.maximum(0,Z)
-    assert(A.shape == Z.shape)
-    cache = Z
-    return A, cache
-
-def relu_backward(dA, cache):
-    Z = cache
-    dZ = np.array(dA, copy=True) # just converting dz to a correct object.
-    # When z <= 0, you should set dz to 0 as well.
-    dZ[Z <= 0] = 0
-    assert (dZ.shape == Z.shape)
-    return dZ
-
-def sigmoid_backward(dA, cache):
-    Z = cache
-    s = 1/(1+np.exp(-Z))
-    dZ = dA * s * (1-s)
-    assert (dZ.shape == Z.shape)
-    return dZ
-
 def load_data():
     train_dataset = h5py.File('datasets/train_catvnoncat.h5', "r")
     train_set_x_orig = np.array(train_dataset["train_set_x"][:]) # your train set features
@@ -56,21 +30,3 @@ def print_mislabeled_images(classes, X, y, p):
         plt.imshow(X[:,index].reshape(64,64,3), interpolation='nearest')
         plt.axis('off')
         plt.title("Prediction: " + classes[int(p[0,index])].decode("utf-8") + " \n Class: " + classes[y[0,index]].decode("utf-8"))
-
-
-def predict(X, y, parameters):
-    m = X.shape[1]
-    n = len(parameters) // 2 # number of layers in the neural network
-    p = np.zeros((1,m))
-    # Forward propagation
-    probas, caches = L_model_forward(X, parameters)
-
-    # convert probas to 0/1 predictions
-    for i in range(0, probas.shape[1]):
-        if probas[0,i] > 0.5:
-            p[0,i] = 1
-        else:
-            p[0,i] = 0
-
-    print("Accuracy: "  + str(np.sum((p == y)/m)))
-    return p
